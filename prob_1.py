@@ -7,11 +7,14 @@ from utils import extract_sites_data, save_data_as_csv, remove_invalid_rows, rem
 
 def extract_last_hour_data(file_name):
     data = pd.read_csv(file_name)
-    data = data.iloc[-15:-1, :]
-    data = remove_invalid_rows(data, invalid_rows=[-5])
+    data = data.iloc[-15:, :]
+    print(f"\n")
+    print("提取最后15行数据")
+    print(data)
+    data = remove_invalid_rows(data, invalid_rows=[355])
     data = remove_invalid_city_columns(data)
-    save_data_as_csv(
-        data, "res/china_sites_20250215_1141A_1269A_last_hour.csv")
+    data.to_csv("res/china_sites_20250215_1141A_1269A_last_hour.csv",
+                header=True, index=False)
     return data
 
 
@@ -21,4 +24,8 @@ if __name__ == "__main__":
         "data/站点_20250101-20250215/站点_20250101-20250215/china_sites_20250215.csv")
     save_data_as_csv(data, "res/china_sites_20250215_1141A_1269A.csv",
                      "data/站点_20250101-20250215/站点_20250101-20250215/china_sites_20250215.csv")
+    print(f"\n")
+    print("提取1141A到1269A的数据")
     print(data)
+    extract_last_hour_data(
+        "res/china_sites_20250215_1141A_1269A.csv")
