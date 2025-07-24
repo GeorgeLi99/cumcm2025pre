@@ -5,3 +5,4 @@ scikit-learn
 sympy
 pandas
 seaborn
+pulp
