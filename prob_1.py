@@ -17,6 +17,10 @@ def extract_last_hour_data(file_name):
                 header=True, index=False)
     return data
 
+def transpose_data(data):
+    pass
+    
+
 
 if __name__ == "__main__":
     # 调用extract_sites_data函数，提取指定csv文件中1141A到1269A的数据
