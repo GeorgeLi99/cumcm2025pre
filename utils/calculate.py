@@ -5,7 +5,7 @@ import numpy as np
 def calculate_iaqi(df):
     all_iaqis = []
     iaqis = []
-    aqis= []
+    aqis = []
     for col in df.columns:
         for row in range(len(df[col])):
             if row == 0:
@@ -51,7 +51,7 @@ def calculate_iaqi(df):
             elif row == 3:
                 # 计算so2的IAQI
                 if df[col][row] <= 150:
-                    iaqis.append(df[col][row]/30*50)
+                    iaqis.append(df[col][row]/150*50)
                 elif df[col][row] <= 500:
                     iaqis.append((df[col][row]-150)/350*50+50)
                 elif df[col][row] <= 650:
@@ -64,7 +64,7 @@ def calculate_iaqi(df):
             elif row == 4:
                 # 计算no2的IAQI
                 if df[col][row] <= 100:
-                    iaqis.append(df[col][row]/40*50)
+                    iaqis.append(df[col][row]/100*50)
                 elif df[col][row] <= 200:
                     iaqis.append((df[col][row]-100)/100*50+50)
                 elif df[col][row] <= 700:
@@ -82,19 +82,23 @@ def calculate_iaqi(df):
                     print("发现no2大于3840的值")
             elif row == 5:
                 # 计算o3的IAQI
-                if df[col][row] <= 100:
-                    iaqis.append(df[col][row]/100*50)
-                elif df[col][row] <= 160:
-                    iaqis.append((df[col][row]-100)/60*50+50)
-                elif df[col][row] <= 215:
-                    iaqis.append((df[col][row]-160)/55*50+100)
-                elif df[col][row] <= 265:
-                    iaqis.append((df[col][row]-215)/50*50+150)
+                if df[col][row] <= 160:
+                    iaqis.append(df[col][row]/160*50)
+                elif df[col][row] <= 200:
+                    iaqis.append((df[col][row]-160)/40*50+50)
+                elif df[col][row] <= 300:
+                    iaqis.append((df[col][row]-200)/100*50+100)
+                elif df[col][row] <= 400:
+                    iaqis.append((df[col][row]-300)/100*50+150)
                 elif df[col][row] <= 800:
-                    iaqis.append((df[col][row]-265)/535*100+200)
+                    iaqis.append((df[col][row]-400)/400*100+200)
+                elif df[col][row] <= 1000:
+                    iaqis.append((df[col][row]-800)/200*100+300)
+                elif df[col][row] <= 1200:
+                    iaqis.append((df[col][row]-1000)/200*100+400)
                 else:
-                    iaqis.append(400)
-                    print("发现o3大于800的值")
+                    iaqis.append(500)
+                    print("发现o3大于1200的值")
             elif row == 6:
                 # 计算co的IAQI
                 if df[col][row] <= 5:

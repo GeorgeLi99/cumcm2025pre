@@ -1,10 +1,12 @@
 
 import pandas as pd
 import numpy as np
+import os
+
 
 # 导入extract_sites_data函数，从utils.data_extract模块中
 from utils import extract_sites_data, save_data_as_csv, \
-    draw_line_chart_of_iaqi, remove_invalid_rows, remove_invalid_city_columns, extract_current_hour_data, extract_some_city_data, calculate_iaqi
+    draw_line_chart_of_iaqi, draw_line_chart_every_day, remove_invalid_rows, remove_invalid_city_columns, extract_current_hour_data, extract_some_city_data, calculate_iaqi
 
 
 def extract_last_hour_data(file_name):
@@ -49,20 +51,31 @@ def extract_all_data():
 def to_py(obj):
     if isinstance(obj, np.generic):
         return obj.item()
-    elif isinstance(obj, list):
-        return [to_py(x) for x in obj]
+    elif isinstance(obj, (list, tuple)):
+        return type(obj)(to_py(x) for x in obj)
+    else:
+        return obj
+
+
+def round_nested(obj, ndigits=0):
+    if isinstance(obj, (list, tuple)):
+        return type(obj)(round_nested(x, ndigits) for x in obj)
+    elif isinstance(obj, float):
+        return round(obj, ndigits)
     else:
         return obj
 
 
 if __name__ == "__main__":
-    iaqis = []
-    aqis = []
+    all_iaqis = []
+    all_aqis = []
     for i in range(1, 6):
-        # 构建文件名
+        # 构建文件名和子文件夹
         day_str = f"{i:d}"  # 不补零
+        subdir = f"res/2025021{day_str}"
+        os.makedirs(subdir, exist_ok=True)
         src_file = f"data/站点_20250101-20250215/站点_20250101-20250215/china_sites_2025021{day_str}.csv"
-        res_file = f"res/china_sites_2025021{day_str}_1141A_1269A.csv"
+        res_file = f"{subdir}/china_sites_2025021{day_str}_1141A_1269A.csv"
 
         # 1. 提取1141A到1269A的数据并保存
         data = extract_sites_data(src_file)
@@ -82,27 +95,39 @@ if __name__ == "__main__":
         df.to_csv(mean_transpose_file, header=True, index=True)
         print(f"已转置并求均值，保存为 {mean_transpose_file}")
 
-        # 4. 提取24小时数据
+        # 4. 提取当前小时的数据
         extract_current_hour_data(last_hour_file)
         current_hour_file = last_hour_file + "_current_hour.csv"
         print(f"已提取24小时数据，保存为 {current_hour_file}")
 
-        # 5. 提取部分城市数据（举例：第3~7列）
-        extract_some_city_data(current_hour_file, [3, 4, 5, 6, 7])
+        # 5. 提取部分城市数据（举例：第6~10列）
+        extract_some_city_data(current_hour_file, [6, 7, 8, 9, 10,11])
         some_city_file = current_hour_file + "_some_city_data.csv"
         print(f"已提取部分城市数据，保存为 {some_city_file}")
 
         # 6. 读取最终数据，准备后续计算
         print("开始计算IAQI")
         df = pd.read_csv(some_city_file)
-        iaqis.append(calculate_iaqi(df))
-        aqis.append(df.iloc[0, :].tolist())
-        # iaqis = to_py(iaqis)
-        # aqis = to_py(aqis)
+        aqis, iaqis = calculate_iaqi(df)
+        all_iaqis.append(iaqis)
+        all_aqis.append(aqis)
         print(f"{some_city_file} 处理完成\n")
-    print(f"\n")
-    print("IAQI:")
-    print(iaqis)
-    print(f"\n")
-    print("AQI:")
-    print(aqis)
+    # 在输出前调用
+    all_iaqis = to_py(all_iaqis)
+    all_aqis = to_py(all_aqis)
+    all_iaqis = round_nested(all_iaqis, 0)
+    all_aqis = round_nested(all_aqis, 0)
+    for i in range(len(all_iaqis)):
+        print(f"day {i+1} AQI of five cities:")
+        print(all_aqis[i])
+        print(f"day {i+1} IAQI of five cities:")
+        print(all_iaqis[i])
+        print(f"\n")
+    draw_line_chart_every_day(all_iaqis, all_aqis)
+
+    # print("\n")
+    # print("IAQI:")
+    # print(iaqis)
+    # print("\n")
+    # print("AQI:")
+    # print(aqis)

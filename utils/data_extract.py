@@ -1,5 +1,6 @@
 import pandas as pd
 import numpy as np
+import os
 
 
 def remove_invalid_rows(df, invalid_rows=None):
@@ -86,16 +87,21 @@ def save_data_as_csv(data, file_name, original_file=None):
 
 def extract_current_hour_data(file_name):
     df = pd.read_csv(file_name)
-    df = df.iloc[[0, 1, 3, 5, 7, 10, 12], :]
-    df.to_csv(file_name+"_current_hour.csv", header=True, index=False)
+    df = df.iloc[[0, 1, 3, 5, 7, 9, 12], :]
+    # 保证输出文件在同一子文件夹下
+    out_file = os.path.join(os.path.dirname(file_name),
+                            os.path.basename(file_name) + "_current_hour.csv")
+    df.to_csv(out_file, header=True, index=False)
     return df
 
 
 def extract_some_city_data(file_name, city_cols: list):
     df = pd.read_csv(file_name)
     df = df.iloc[:, city_cols]
-    df.to_csv(file_name+"_some_city_data.csv",
-              header=True, index=False)
+    # 保证输出文件在同一子文件夹下
+    out_file = os.path.join(os.path.dirname(
+        file_name), os.path.basename(file_name) + "_some_city_data.csv")
+    df.to_csv(out_file, header=True, index=False)
     return df
 
 
