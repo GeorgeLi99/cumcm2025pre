@@ -84,6 +84,21 @@ def save_data_as_csv(data, file_name, original_file=None):
     result.to_csv(file_name, index=False, header=False)
 
 
+def extract_current_hour_data(file_name):
+    df = pd.read_csv(file_name)
+    df = df.iloc[[0, 1, 3, 5, 7, 10, 12], :]
+    df.to_csv(file_name+"_current_hour.csv", header=True, index=False)
+    return df
+
+
+def extract_some_city_data(file_name, city_cols: list):
+    df = pd.read_csv(file_name)
+    df = df.iloc[:, city_cols]
+    df.to_csv(file_name+"_some_city_data.csv",
+              header=True, index=False)
+    return df
+
+
 if __name__ == "__main__":
     sites_df = extract_sites_data(
         'data/站点_20250101-20250215/站点_20250101-20250215/china_sites_20250215.csv')
